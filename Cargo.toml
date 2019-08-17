@@ -13,3 +13,8 @@ bytes = "0.4.12"
 
 [dev-dependencies]
 warp = "0.1.18"
+
+[dev-dependencies.cargo-husky]
+version = "1"
+default-features = false
+features = ["precommit-hook", "run-cargo-test", "run-cargo-clippy"]
