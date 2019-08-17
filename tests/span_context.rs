@@ -1,7 +1,6 @@
 use std::num::{NonZeroU128, NonZeroU64};
 
 use ot_rs::api::trace::span_context::{SpanContext, SpanId, TraceId, TraceOption, TraceState};
-use ot_rs::api::trace::HttpTextFormat;
 
 #[test]
 fn span_context_valid() {
