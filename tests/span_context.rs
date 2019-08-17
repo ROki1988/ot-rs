@@ -6,8 +6,9 @@ use ot_rs::api::trace::span_context::{SpanContext, SpanId, TraceId, TraceOption,
 fn span_context_valid() {
     let sid = NonZeroU64::new(42).unwrap();
     let tid = NonZeroU128::new(42).unwrap();
+    let t = TraceId::new(tid);
     let a = SpanContext::new(
-        TraceId::new(tid),
+        &t,
         SpanId::new(sid),
         TraceOption::MASK_SAMPLE,
         TraceState::empty(),
