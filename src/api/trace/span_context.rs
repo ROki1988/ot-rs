@@ -120,10 +120,10 @@ impl Key {
         if s.is_empty() || s.len() > 256 {
             return None;
         };
-        s.chars()
-            .next()
-            .filter(|x| x.is_ascii_lowercase())?;
-        let is_valid = |x: char| {x.is_ascii_lowercase() || x.is_ascii_digit() || ['_', '-', '*', '/'].contains(&x)};
+        s.chars().next().filter(|x| x.is_ascii_lowercase())?;
+        let is_valid = |x: char| {
+            x.is_ascii_lowercase() || x.is_ascii_digit() || ['_', '-', '*', '/'].contains(&x)
+        };
         if !s.chars().all(is_valid) {
             return None;
         };

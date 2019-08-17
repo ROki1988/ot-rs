@@ -1,9 +1,9 @@
 use std::str::FromStr;
 
-use crate::api::trace::HttpTextFormat;
 use crate::api::trace::span_context::{
     Entry, SpanContext, SpanId, TraceId, TraceOption, TraceState,
 };
+use crate::api::trace::HttpTextFormat;
 
 const TRACEPARENT: &str = "traceparent";
 const TRACESTATE: &str = "tracestate";
