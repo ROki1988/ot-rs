@@ -21,11 +21,8 @@ impl<'a, 'b> Span<'a, 'b> {
     }
 
     fn span_duration(&self) -> Option<Duration> {
-        self.start_time.and_then(|s| {
-            self.finish_time.and_then(|fin| {
-                fin.duration_since(s).ok()
-            })
-        })
+        self.start_time
+            .and_then(|s| self.finish_time.and_then(|fin| fin.duration_since(s).ok()))
     }
 
     fn add_link(&mut self, link: Link<'b>) {
