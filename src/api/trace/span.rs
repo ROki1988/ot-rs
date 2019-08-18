@@ -9,6 +9,9 @@ use crate::api::trace::status::Status;
 struct Timestamp(SystemTime);
 
 impl Timestamp {
+    fn now() -> Self {
+        Self(SystemTime::now())
+    }
     fn as_millis(&self) -> u128 {
         self.0
             .duration_since(UNIX_EPOCH)
@@ -100,6 +103,14 @@ impl<'a, 'b, 'c> Span<'a, 'b, 'c> {
         self.events.push(TimedEvent::new(event));
     }
 
+    fn set_attribute(&mut self, key: String, value: Value) {
+        self.attributes.insert(key, value);
+    }
+
+    fn update_name(&mut self, name: &str) {
+        self.name = name.to_string();
+    }
+
     fn get_links_iter(&self) -> impl Iterator<Item = &Link> {
         self.links.iter()
     }
@@ -137,6 +148,10 @@ impl<'a, 'b, 'c> Span<'a, 'b, 'c> {
 
     fn set_status(&mut self, next: Status) {
         self.status = next;
+    }
+
+    fn end(&mut self) {
+        self.finish_time = Some(Timestamp::now());
     }
 }
 
