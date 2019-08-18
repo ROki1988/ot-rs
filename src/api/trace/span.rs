@@ -4,46 +4,50 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use crate::api::trace::key::Value;
 use crate::api::trace::span_context::{SpanContext, SpanId};
 
-pub struct Span {
-    context: SpanContext,
+pub struct Span<'a, 'b> {
+    context: SpanContext<'a>,
     name: String,
-    start_time: SystemTime,
+    start_time: Option<SystemTime>,
     finish_time: Option<SystemTime>,
     attributes: HashMap<String, Value>,
-    parent_span_id: SpanId,
-    links: Vec<Link>,
+    parent_span_id: &'b SpanId,
+    links: Vec<Link<'b>>,
     events: Vec<TimedEvent>,
 }
 
-impl Span {
-    pub fn context(&self) -> &SpanContext {
+impl<'a, 'b> Span<'a, 'b> {
+    fn context(&self) -> &SpanContext {
         &self.context
     }
 
-    pub fn span_duration(&self) -> Option<Duration> {
-        self.finish_time
-            .and_then(|f| f.duration_since(self.start_time).ok())
+    fn span_duration(&self) -> Option<Duration> {
+        self.start_time
+            .and_then(|s| self.finish_time.and_then(|fin| fin.duration_since(s).ok()))
     }
 
-    pub fn add_link(&mut self, link: Link) {
+    fn add_link(&mut self, link: Link<'b>) {
         self.links.push(link);
     }
 
-    pub fn add_event(&mut self, event: Event) {
+    fn add_event(&mut self, event: Event) {
         self.events.push(TimedEvent::new(event));
     }
 
-    pub fn get_links_ter(&self) -> impl Iterator<Item = &Link> {
+    fn get_links_iter(&self) -> impl Iterator<Item = &Link> {
         self.links.iter()
     }
 
-    pub fn get_events_ter(&self) -> impl Iterator<Item = &TimedEvent> {
+    fn get_events_iter(&self) -> impl Iterator<Item = &TimedEvent> {
         self.events.iter()
+    }
+
+    fn get_attributes_iter(&self) -> impl Iterator<Item = (&String, &Value)> {
+        self.attributes.iter()
     }
 }
 
-pub struct Link {
-    span_context: SpanContext,
+pub struct Link<'a> {
+    span_context: SpanContext<'a>,
     attributes: HashMap<String, Value>,
 }
 

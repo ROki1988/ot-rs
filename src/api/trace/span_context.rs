@@ -151,7 +151,7 @@ impl Value {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Entry {
     key: Key,
     value: Value,
@@ -169,7 +169,7 @@ impl ToString for Entry {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TraceState(pub(crate) Vec<Entry>);
 
 impl TraceState {
@@ -204,14 +204,14 @@ impl TraceState {
 }
 
 #[derive(Debug)]
-pub struct SpanContext {
-    pub trace_id: TraceId,
+pub struct SpanContext<'a> {
+    pub trace_id: &'a TraceId,
     pub span_id: SpanId,
     pub trace_option: TraceOption,
     pub trace_state: TraceState,
 }
 
-impl PartialEq for SpanContext {
+impl<'a> PartialEq for SpanContext<'a> {
     fn eq(&self, other: &Self) -> bool {
         self.trace_id == other.trace_id
             && self.span_id == other.span_id
@@ -219,9 +219,9 @@ impl PartialEq for SpanContext {
     }
 }
 
-impl SpanContext {
+impl<'a> SpanContext<'a> {
     pub fn new(
-        trace_id: TraceId,
+        trace_id: &'a TraceId,
         span_id: SpanId,
         trace_option: TraceOption,
         trace_state: TraceState,
