@@ -1,8 +1,8 @@
-use crate::api::trace::span_context::{SpanContext};
-use crate::api::trace::status::Status;
 use crate::api::trace::key::Value;
+use crate::api::trace::span_context::SpanContext;
+use crate::api::trace::status::Status;
 use std::collections::HashMap;
-use std::time::{Duration, UNIX_EPOCH, SystemTime};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 pub mod key;
 pub mod propagation;

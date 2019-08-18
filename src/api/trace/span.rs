@@ -1,8 +1,8 @@
-use std::collections::HashMap;
 use crate::api::trace::key::Value;
 use crate::api::trace::span_context::{SpanContext, SpanId};
 use crate::api::trace::status::Status;
-use crate::api::trace::{Timestamp, Link, TimedEvent, Event, Span};
+use crate::api::trace::{Event, Link, Span, TimedEvent, Timestamp};
+use std::collections::HashMap;
 
 /// [Span spec](https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/api-tracing.md#span)
 pub struct InMemorySpan<'a, 'b> {
@@ -70,7 +70,7 @@ impl<'a, 'b> InMemorySpan<'a, 'b> {
     }
 }
 
-impl<'a, 'b>  Span<'a> for InMemorySpan<'a, 'b>  {
+impl<'a, 'b> Span<'a> for InMemorySpan<'a, 'b> {
     fn context(&self) -> &SpanContext {
         &self.context
     }
@@ -78,7 +78,6 @@ impl<'a, 'b>  Span<'a> for InMemorySpan<'a, 'b>  {
     fn is_recording_events(&self) -> bool {
         true
     }
-
 
     fn add_link(&mut self, link: Link<'a>) {
         self.links.push(link);
@@ -103,5 +102,4 @@ impl<'a, 'b>  Span<'a> for InMemorySpan<'a, 'b>  {
     fn end(&mut self) {
         self.finish_time = Some(Timestamp::now());
     }
-
 }
