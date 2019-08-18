@@ -182,3 +182,21 @@ impl TimedEvent {
         }
     }
 }
+
+#[test]
+fn timestamp_to_primitive() {
+    let a = Timestamp(UNIX_EPOCH.checked_add(Duration::from_secs(1)).unwrap());
+    assert_eq!(a.as_millis(), 1000);
+    assert_eq!(a.as_micros(), 1000_000);
+    assert_eq!(a.as_nanos(), 1000_000_000);
+}
+
+#[test]
+fn timestamp_to_duration() {
+    let a1 = Timestamp(UNIX_EPOCH.checked_add(Duration::from_secs(1)).unwrap());
+    let a2 = Timestamp(UNIX_EPOCH);
+
+    assert_eq!(a1.duration_since_as_millis(&a2), Some(1000));
+    assert_eq!(a1.duration_since_as_micros(&a2), Some(1000_000));
+    assert_eq!(a1.duration_since_as_nanos(&a2), Some(1000_000_000));
+}
