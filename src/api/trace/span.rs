@@ -3,29 +3,96 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::api::trace::key::Value;
 use crate::api::trace::span_context::{SpanContext, SpanId};
+use crate::api::trace::status::Status;
 
-pub struct Span<'a, 'b> {
-    context: SpanContext<'a>,
-    name: String,
-    start_time: Option<SystemTime>,
-    finish_time: Option<SystemTime>,
-    attributes: HashMap<String, Value>,
-    parent_span_id: &'b SpanId,
-    links: Vec<Link<'b>>,
-    events: Vec<TimedEvent>,
+/// [Timestamp spec](https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/api-tracing.md#timestamp)
+struct Timestamp(SystemTime);
+
+impl Timestamp {
+    fn as_millis(&self) -> u128 {
+        self.0
+            .duration_since(UNIX_EPOCH)
+            .as_ref()
+            .map(Duration::as_millis)
+            .unwrap()
+    }
+    fn as_micros(&self) -> u128 {
+        self.0
+            .duration_since(UNIX_EPOCH)
+            .as_ref()
+            .map(Duration::as_micros)
+            .unwrap()
+    }
+    fn as_nanos(&self) -> u128 {
+        self.0
+            .duration_since(UNIX_EPOCH)
+            .as_ref()
+            .map(Duration::as_nanos)
+            .unwrap()
+    }
+
+    fn duration_since_as_millis(&self, other: &Self) -> Option<u128> {
+        self.0
+            .duration_since(other.0)
+            .as_ref()
+            .map(Duration::as_millis)
+            .ok()
+    }
+    fn duration_since_as_micros(&self, other: &Self) -> Option<u128> {
+        self.0
+            .duration_since(other.0)
+            .as_ref()
+            .map(Duration::as_micros)
+            .ok()
+    }
+    fn duration_since_as_nanos(&self, other: &Self) -> Option<u128> {
+        self.0
+            .duration_since(other.0)
+            .as_ref()
+            .map(Duration::as_nanos)
+            .ok()
+    }
 }
 
-impl<'a, 'b> Span<'a, 'b> {
+/// [Span spec](https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/api-tracing.md#span)
+pub struct Span<'a, 'b, 'c> {
+    context: SpanContext<'a>,
+    name: String,
+    start_time: Timestamp,
+    finish_time: Option<Timestamp>,
+    attributes: HashMap<String, Value>,
+    parent_span_id: &'b SpanId,
+    links: Vec<Link<'c>>,
+    events: Vec<TimedEvent>,
+    status: Status,
+}
+
+impl<'a, 'b, 'c> Span<'a, 'b, 'c> {
     fn context(&self) -> &SpanContext {
         &self.context
     }
 
-    fn span_duration(&self) -> Option<Duration> {
-        self.start_time
-            .and_then(|s| self.finish_time.and_then(|fin| fin.duration_since(s).ok()))
+    const fn is_recording_events(&self) -> bool {
+        true
     }
 
-    fn add_link(&mut self, link: Link<'b>) {
+    fn span_duration_as_millis(&self) -> Option<u128> {
+        self.finish_time
+            .as_ref()
+            .and_then(|fin| fin.duration_since_as_millis(&self.start_time))
+    }
+    fn span_duration_as_micros(&self) -> Option<u128> {
+        self.finish_time
+            .as_ref()
+            .and_then(|fin| fin.duration_since_as_micros(&self.start_time))
+    }
+    fn span_duration_as_nanos(&self) -> Option<u128> {
+        self.finish_time
+            .as_ref()
+            .and_then(|fin| fin.duration_since_as_nanos(&self.start_time))
+    }
+
+    fn add_link(&mut self, link: Link<'c>) {
         self.links.push(link);
     }
 
@@ -43,6 +110,33 @@ impl<'a, 'b> Span<'a, 'b> {
 
     fn get_attributes_iter(&self) -> impl Iterator<Item = (&String, &Value)> {
         self.attributes.iter()
+    }
+
+    fn get_start_epoch_time_as_millis(&self) -> u128 {
+        self.start_time.as_millis()
+    }
+
+    fn get_finish_epoch_time_as_millis(&self) -> Option<u128> {
+        self.finish_time.as_ref().map(Timestamp::as_millis)
+    }
+
+    fn get_start_epoch_time_as_micros(&self) -> u128 {
+        self.start_time.as_micros()
+    }
+
+    fn get_finish_epoch_time_as_micros(&self) -> Option<u128> {
+        self.finish_time.as_ref().map(Timestamp::as_micros)
+    }
+    fn get_start_epoch_time_as_nanos(&self) -> u128 {
+        self.start_time.as_nanos()
+    }
+
+    fn get_finish_epoch_time_as_nanos(&self) -> Option<u128> {
+        self.finish_time.as_ref().map(Timestamp::as_nanos)
+    }
+
+    fn set_status(&mut self, next: Status) {
+        self.status = next;
     }
 }
 
