@@ -1,22 +1,39 @@
 use crate::api::trace::key::Value;
 use crate::api::trace::span_context::SpanContext;
+use crate::api::trace::span_data::SpanData;
 use crate::api::trace::status::Status;
 use std::collections::HashMap;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+pub mod in_memory;
 pub mod key;
 pub mod propagation;
-pub mod span;
+pub mod scope;
 pub mod span_context;
+pub mod span_data;
 pub mod status;
 pub mod trace_context;
 
-trait Tracer<'a> {
-    type Span: Span<'a>;
-    fn current_span(&self) -> &Self::Span;
+trait Tracer<'a, S>
+where
+    S: Span<'a>,
+{
+    type Error;
+    fn current_span(&self) -> Option<&S>;
+    fn record_span_data(&self, value: S) -> Result<SpanData, Self::Error>;
+}
+
+enum SpanKind {
+    INTERNAL,
+    SERVER,
+    CLIENT,
+    PRODUCER,
+    CONSUMER,
 }
 
 trait Span<'a>: Sized + Sync {
+    fn start(&mut self);
+
     fn context(&self) -> &SpanContext;
 
     fn is_recording_events(&self) -> bool;
@@ -57,6 +74,7 @@ impl Event {
     }
 }
 
+#[derive(Clone)]
 pub struct TimedEvent {
     timestamp: Timestamp,
     name: String,
@@ -78,7 +96,8 @@ impl TimedEvent {
 }
 
 /// [Timestamp spec](https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/api-tracing.md#timestamp)
-struct Timestamp(SystemTime);
+#[derive(Clone)]
+pub(crate) struct Timestamp(SystemTime);
 
 impl Timestamp {
     fn now() -> Self {

@@ -1,20 +1,23 @@
 use crate::api::trace::key::Value;
 use crate::api::trace::span_context::{SpanContext, SpanId};
+use crate::api::trace::span_data::SpanData;
 use crate::api::trace::status::Status;
-use crate::api::trace::{Event, Link, Span, TimedEvent, Timestamp};
+use crate::api::trace::trace_context::TraceContext;
+use crate::api::trace::{Event, Link, Span, TimedEvent, Timestamp, Tracer};
 use std::collections::HashMap;
+use std::convert::TryFrom;
 
 /// [Span spec](https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/api-tracing.md#span)
 pub struct InMemorySpan<'a, 'b> {
-    context: SpanContext<'a>,
-    name: String,
-    start_time: Timestamp,
-    finish_time: Option<Timestamp>,
-    attributes: HashMap<String, Value>,
-    parent_span_id: Option<&'b SpanId>,
-    links: Vec<Link<'a>>,
-    events: Vec<TimedEvent>,
-    status: Status,
+    pub(crate) context: SpanContext<'a>,
+    pub(crate) name: String,
+    pub(crate) start_time: Timestamp,
+    pub(crate) finish_time: Option<Timestamp>,
+    pub(crate) attributes: HashMap<String, Value>,
+    pub(crate) parent_span_id: Option<&'b SpanId>,
+    pub(crate) links: Vec<Link<'a>>,
+    pub(crate) events: Vec<TimedEvent>,
+    pub(crate) status: Status,
 }
 
 impl<'a, 'b> InMemorySpan<'a, 'b> {
@@ -71,6 +74,10 @@ impl<'a, 'b> InMemorySpan<'a, 'b> {
 }
 
 impl<'a, 'b> Span<'a> for InMemorySpan<'a, 'b> {
+    fn start(&mut self) {
+        self.start_time = Timestamp::now();
+    }
+
     fn context(&self) -> &SpanContext {
         &self.context
     }
@@ -101,5 +108,27 @@ impl<'a, 'b> Span<'a> for InMemorySpan<'a, 'b> {
 
     fn end(&mut self) {
         self.finish_time = Some(Timestamp::now());
+    }
+}
+
+struct InMemoryTracer<'a, 'b> {
+    current_trace: Option<TraceContext>,
+    current_span: Option<InMemorySpan<'a, 'b>>,
+}
+
+impl<'a, 'b> InMemoryTracer<'a, 'b> {
+    fn current_trace(&self) -> Option<&TraceContext> {
+        self.current_trace.as_ref()
+    }
+}
+
+impl<'a, 'b> Tracer<'a, InMemorySpan<'a, 'b>> for InMemoryTracer<'a, 'b> {
+    type Error = ();
+    fn current_span(&self) -> Option<&InMemorySpan<'a, 'b>> {
+        self.current_span.as_ref()
+    }
+
+    fn record_span_data(&self, value: InMemorySpan<'a, 'b>) -> Result<SpanData, Self::Error> {
+        SpanData::try_from(value)
     }
 }

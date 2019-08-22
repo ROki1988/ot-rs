@@ -4,6 +4,7 @@ pub struct Key {
     variable: registry::Variable,
 }
 
+#[derive(Clone)]
 pub enum Value {
     Bool(bool),
     Int64(i64),
