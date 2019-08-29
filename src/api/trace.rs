@@ -3,6 +3,7 @@ use crate::api::trace::span_context::SpanContext;
 use crate::api::trace::span_data::SpanData;
 use crate::api::trace::status::Status;
 use std::collections::HashMap;
+use std::convert::TryInto;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 pub mod in_memory;
@@ -16,7 +17,7 @@ pub mod trace_context;
 
 trait Tracer<'a, S>
 where
-    S: Span<'a>,
+    S: Span<'a> + TryInto<SpanData>,
 {
     type Error;
     fn current_span(&self) -> Option<&S>;
