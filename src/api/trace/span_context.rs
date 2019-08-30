@@ -5,7 +5,7 @@ use rand;
 
 use bitflags::bitflags;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TraceId(NonZeroU128);
 
 impl TraceId {
@@ -48,7 +48,7 @@ impl ToString for TraceId {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SpanId(NonZeroU64);
 
 impl SpanId {

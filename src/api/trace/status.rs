@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum CanonicalCode {
     Ok = 0,
     Cancelled = 1,
@@ -19,7 +19,7 @@ pub enum CanonicalCode {
     Unauthenticated = 16,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Status {
     canonical_code: CanonicalCode,
     description: Option<String>,
