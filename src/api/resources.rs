@@ -2,15 +2,15 @@ use std::collections::HashMap;
 use std::str::FromStr;
 
 #[derive(PartialEq, Eq, Hash, Clone)]
-pub struct ResourceName(String);
+pub struct LabelName(String);
 
-impl ResourceName {
+impl LabelName {
     pub fn value(&self) -> &str {
         self.0.as_str()
     }
 }
 
-impl FromStr for ResourceName {
+impl FromStr for LabelName {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -23,15 +23,15 @@ impl FromStr for ResourceName {
 }
 
 #[derive(Clone)]
-pub struct ResourceValue(String);
+pub struct LabelValue(String);
 
-impl ResourceValue {
+impl LabelValue {
     pub fn value(&self) -> &str {
         self.0.as_str()
     }
 }
 
-impl FromStr for ResourceValue {
+impl FromStr for LabelValue {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -43,24 +43,32 @@ impl FromStr for ResourceValue {
     }
 }
 
-pub struct Resource(HashMap<ResourceName, ResourceValue>);
+pub struct Resource(HashMap<LabelName, LabelValue>);
 
 impl Resource {
-    fn upsert(&mut self, name: ResourceName, value: ResourceValue) -> &mut Self {
+    pub fn new() -> Self {
+        Self(HashMap::new())
+    }
+
+    pub fn upsert(&mut self, name: LabelName, value: LabelValue) -> &mut Self {
         self.0.insert(name, value);
         self
     }
 
-    fn try_upsert(&mut self, name: &str, value: &str) -> Result<&mut Self, ()> {
-        ResourceName::from_str(name).and_then(|n| {
-            ResourceValue::from_str(value).map(|v| {
+    pub fn try_upsert(&mut self, name: &str, value: &str) -> Result<&mut Self, ()> {
+        LabelName::from_str(name).and_then(|n| {
+            LabelValue::from_str(value).map(|v| {
                 self.0.insert(n, v);
                 self
             })
         })
     }
 
-    fn merge(&mut self, other: &Self) {
+    pub fn merge(&mut self, other: &Self) {
         self.0.extend(other.0.clone());
+    }
+
+    pub fn labels(&self) -> impl Iterator<Item = (&LabelName, &LabelValue)> {
+        self.0.iter()
     }
 }
