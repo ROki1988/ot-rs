@@ -1,3 +1,4 @@
+use crate::api::resources::Resource;
 use crate::api::trace::key::Value;
 use crate::api::trace::span_context::{SpanContext, SpanId};
 use crate::api::trace::span_data::SpanData;
@@ -10,6 +11,7 @@ use std::convert::TryFrom;
 /// [Span spec](https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/api-tracing.md#span)
 pub struct InMemorySpan<'a, 'b> {
     pub(crate) context: SpanContext<'a>,
+    pub(crate) resource: &'a Resource,
     pub(crate) name: String,
     pub(crate) start_time: Timestamp,
     pub(crate) finish_time: Option<Timestamp>,
@@ -114,6 +116,7 @@ impl<'a, 'b> Span<'a> for InMemorySpan<'a, 'b> {
 struct InMemoryTracer<'a, 'b> {
     current_trace: Option<TraceContext>,
     current_span: Option<InMemorySpan<'a, 'b>>,
+    resource: Resource,
 }
 
 impl<'a, 'b> InMemoryTracer<'a, 'b> {

@@ -1,3 +1,4 @@
+use crate::api::resources::Resource;
 use crate::api::trace::in_memory::InMemorySpan;
 use crate::api::trace::key::Value;
 use crate::api::trace::span_context::{SpanContext, SpanId, TraceId, TraceOption, TraceState};
@@ -62,6 +63,7 @@ impl<'a> From<Link<'a>> for ImmutableLink {
 pub struct SpanData {
     // should not has lifetime, maybe
     context: ImmutableSpanContext,
+    resource: Resource,
     parent_span_id: Option<SpanId>,
     name: String,
     kind: SpanKind,
@@ -80,6 +82,7 @@ impl<'a, 'b> TryFrom<&InMemorySpan<'a, 'b>> for SpanData {
         let ft = value.finish_time.clone().ok_or(())?;
         Ok(Self {
             context: ImmutableSpanContext::from(&value.context),
+            resource: value.resource.clone(),
             parent_span_id: value.parent_span_id.cloned(),
             name: value.name.clone(),
             kind: SpanKind::INTERNAL,
@@ -100,6 +103,7 @@ impl<'a, 'b> TryFrom<InMemorySpan<'a, 'b>> for SpanData {
         let ft = value.finish_time.clone().ok_or(())?;
         Ok(Self {
             context: ImmutableSpanContext::from(&value.context),
+            resource: value.resource.clone(),
             parent_span_id: value.parent_span_id.cloned(),
             name: value.name,
             kind: SpanKind::INTERNAL,

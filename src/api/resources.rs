@@ -43,6 +43,7 @@ impl FromStr for LabelValue {
     }
 }
 
+#[derive(Clone)]
 pub struct Resource(HashMap<LabelName, LabelValue>);
 
 impl Resource {

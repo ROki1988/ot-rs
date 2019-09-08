@@ -8,6 +8,8 @@ proptest! {
     fn valid_name(ref s in "[ -~]{1,255}") {
         let a = LabelName::from_str(s);
         prop_assert!(a.is_ok());
+        let aa = a.unwrap();
+        prop_assert_eq!(aa.value(), s);
     }
 
     #[test]
@@ -32,6 +34,8 @@ proptest! {
     fn valid_value(ref s in "[ -~]{0,255}") {
         let a = LabelValue::from_str(s);
         prop_assert!(a.is_ok());
+        let aa = a.unwrap();
+        prop_assert_eq!(aa.value(), s);
     }
 
     #[test]
