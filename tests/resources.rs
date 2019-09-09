@@ -1,7 +1,8 @@
-use ot_rs::api::resources::{LabelName, LabelValue, Resource};
 use std::str::FromStr;
 
 use proptest::prelude::*;
+
+use ot_rs::api::resources::{LabelName, LabelValue, Resource};
 
 proptest! {
     #[test]
@@ -53,9 +54,9 @@ proptest! {
 
 #[test]
 fn merge_test() {
-    let mut x = Resource::new();
+    let mut x = Resource::default();
     x.try_upsert("a", "1").unwrap();
-    let mut y = Resource::new();
+    let mut y = Resource::default();
     y.try_upsert("b", "2").unwrap();
     x.merge(&y);
     assert!(x

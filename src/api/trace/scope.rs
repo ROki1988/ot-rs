@@ -47,7 +47,7 @@ fn scope_test() {
         TraceOption::MASK_SAMPLE,
         TraceState::empty(),
     );
-    let r = Resource::new();
+    let r = Resource::default();
 
     let span = InMemorySpan {
         context: s,

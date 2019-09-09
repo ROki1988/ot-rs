@@ -43,14 +43,10 @@ impl FromStr for LabelValue {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct Resource(HashMap<LabelName, LabelValue>);
 
 impl Resource {
-    pub fn new() -> Self {
-        Self(HashMap::new())
-    }
-
     pub fn upsert(&mut self, name: LabelName, value: LabelValue) -> &mut Self {
         self.0.insert(name, value);
         self

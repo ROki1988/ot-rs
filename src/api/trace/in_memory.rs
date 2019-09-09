@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+use std::convert::TryFrom;
+
 use crate::api::resources::Resource;
 use crate::api::trace::key::Value;
 use crate::api::trace::span_context::{SpanContext, SpanId};
@@ -5,8 +8,6 @@ use crate::api::trace::span_data::SpanData;
 use crate::api::trace::status::Status;
 use crate::api::trace::trace_context::TraceContext;
 use crate::api::trace::{Event, Link, Span, TimedEvent, Timestamp, Tracer};
-use std::collections::HashMap;
-use std::convert::TryFrom;
 
 /// [Span spec](https://github.com/open-telemetry/opentelemetry-specification/blob/master/specification/api-tracing.md#span)
 pub struct InMemorySpan<'a, 'b> {
@@ -82,6 +83,10 @@ impl<'a, 'b> Span<'a> for InMemorySpan<'a, 'b> {
 
     fn context(&self) -> &SpanContext {
         &self.context
+    }
+
+    fn resource(&self) -> &Resource {
+        self.resource
     }
 
     fn is_recording_events(&self) -> bool {

@@ -1,11 +1,12 @@
+use std::collections::HashMap;
+use std::convert::TryFrom;
+
 use crate::api::resources::Resource;
 use crate::api::trace::in_memory::InMemorySpan;
 use crate::api::trace::key::Value;
 use crate::api::trace::span_context::{SpanContext, SpanId, TraceId, TraceOption, TraceState};
 use crate::api::trace::status::Status;
 use crate::api::trace::{Link, SpanKind, TimedEvent, Timestamp};
-use std::collections::HashMap;
-use std::convert::TryFrom;
 
 struct ImmutableSpanContext {
     trace_id: TraceId,
