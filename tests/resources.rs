@@ -58,11 +58,11 @@ fn merge_test() {
     x.try_upsert("a", "1").unwrap();
     let mut y = Resource::default();
     y.try_upsert("b", "2").unwrap();
-    x.merge(&y);
-    assert!(x
+    let z = x.merge(&y);
+    assert!(z
         .labels()
         .any(|(k, v)| k.value() == "a" && v.value() == "1"));
-    assert!(x
+    assert!(z
         .labels()
         .any(|(k, v)| k.value() == "b" && v.value() == "2"));
 }

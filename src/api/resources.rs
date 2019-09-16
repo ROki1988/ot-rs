@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::iter::FromIterator;
 use std::str::FromStr;
 
 #[derive(PartialEq, Eq, Hash, Clone)]
@@ -61,8 +62,13 @@ impl Resource {
         })
     }
 
-    pub fn merge(&mut self, other: &Self) {
-        self.0.extend(other.0.clone());
+    pub fn merge(&self, other: &Self) -> Self {
+        Self(HashMap::from_iter(
+            self.0
+                .clone()
+                .into_iter()
+                .chain(other.0.clone().into_iter()),
+        ))
     }
 
     pub fn labels(&self) -> impl Iterator<Item = (&LabelName, &LabelValue)> {
