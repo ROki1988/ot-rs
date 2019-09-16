@@ -1,10 +1,12 @@
+use std::collections::HashMap;
+use std::convert::TryInto;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
+use crate::api::resources::Resource;
 use crate::api::trace::key::Value;
 use crate::api::trace::span_context::SpanContext;
 use crate::api::trace::span_data::SpanData;
 use crate::api::trace::status::Status;
-use std::collections::HashMap;
-use std::convert::TryInto;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 pub mod in_memory;
 pub mod key;
@@ -36,6 +38,8 @@ trait Span<'a>: Sized + Sync {
     fn start(&mut self);
 
     fn context(&self) -> &SpanContext;
+
+    fn resource(&self) -> &Resource;
 
     fn is_recording_events(&self) -> bool;
 

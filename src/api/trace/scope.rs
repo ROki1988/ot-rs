@@ -25,6 +25,7 @@ where
 
 #[test]
 fn scope_test() {
+    use crate::api::resources::Resource;
     use crate::api::trace::in_memory::InMemorySpan;
     use crate::api::trace::span_context::SpanContext;
     use crate::api::trace::span_context::{SpanId, TraceId, TraceOption, TraceState};
@@ -46,9 +47,11 @@ fn scope_test() {
         TraceOption::MASK_SAMPLE,
         TraceState::empty(),
     );
+    let r = Resource::default();
 
     let span = InMemorySpan {
         context: s,
+        resource: &r,
         name: "test".to_owned(),
         start_time: Timestamp::now(),
         finish_time: None,
