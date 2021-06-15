@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 bitflags = "1.2.1"
-rand = "0.7.2"
+rand = "0.8.4"
 bytes = "0.4.12"
 futures-preview = "=0.3.0-alpha.19"
 
